@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: network_security
+Version: 0.0.1
+Author: Sairathan
+Author-email: sairathan201820@gmail.com
+Requires-Dist: python-dotenv
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: pymango
+Requires-Dist: certifi
+Dynamic: author
+Dynamic: author-email
+Dynamic: requires-dist
