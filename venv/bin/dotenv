@@ -1,6 +1,4 @@
-#!/bin/sh
-'''exec' "/Users/sairathan/Desktop/network security /venv/bin/python3.10" "$0" "$@"
-' '''
+#!/Users/sairathan/Desktop/network_security/venv/bin/python
 import sys
 from dotenv.__main__ import cli
 if __name__ == '__main__':

@@ -1,7 +1,10 @@
 python-dotenv
 pandas
 numpy 
-pymango
+pymongo
+pymongo>=4.15
+dnspython>=2.4
 certifi
 
--e .
+
+##-e .
