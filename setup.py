@@ -1,4 +1,4 @@
-from setuptools import find_packages,setup
+from setuptools import setup, find_packages 
 from typing import List 
 
 def get_requirements()->List[str]:
@@ -18,10 +18,10 @@ def get_requirements()->List[str]:
     return requirement_lst
 
 setup(
-    name='network_security',
+    name='networksecurity',
     version='0.0.1',
     author='Sairathan',
     author_email="sairathan201820@gmail.com",
-    packages=find_packages(),
+    packages= find_packages(),
     install_requires=get_requirements()
 )

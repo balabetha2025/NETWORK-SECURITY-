@@ -1,13 +1,12 @@
-import os 
 import sys
+import os 
 import json 
-import pymongo
 
 from dotenv import load_dotenv
 load_dotenv()
 
 MONGO_DB_URL=os.getenv("MONGO_DB_URL")
-
+print(MONGO_DB_URL)
 
 import certifi
 ca=certifi.where()
@@ -25,6 +24,7 @@ class NetworkSecurityData:
             pass
         except Exception as e:
             raise NetworkSecurityException(e, sys)
+        
     def csv_to_json_converter(self,file_path):
         try:
             data=pd.read_csv(file_path)
@@ -58,5 +58,6 @@ if __name__=='__main__':
     COLLECTION="network_security_collection"
     networkobj=NetworkSecurityData()
     records=networkobj.csv_to_json_converter(file_path=FILE_PATH)
+    print(records)
     no_of_records=networkobj.insert_data_mongodb(records=records,database=DATABASE,collection=COLLECTION)
     print(no_of_records)
