@@ -2,11 +2,11 @@ from networksecurity.entity.artifact_entity import DataIngestionArtifact, DataVa
 from networksecurity.entity.config_entity import DataValidationConfig
 from networksecurity.exception.exception import NetworkSecurityException
 from networksecurity.logging.logger import logging
-from networksecurity.constants.training_pipeline import SCHEMA_FILE_NAME
 import os,sys 
 import pandas as pd 
 from scipy.stats import ks_2samp, chi2_contingency  
-from pandas.api.types import is_numeric_dtype       
+from pandas.api.types import is_numeric_dtype  
+from networksecurity.constants.training_pipeline import SCHEMA_FILE_PATH     
 
 
 from networksecurity.utils.main_utils import read_yaml_file,write_yaml_file
@@ -16,8 +16,8 @@ class DataValidation:
         try:
             self.data_validation_config = data_validation_config
             self.data_ingestion_artifact = data_ingestion_artifact
-            self.schema_file_path = SCHEMA_FILE_NAME
-            self._schema_config = read_yaml_file(self.schema_file_path)
+            self.schema_file_path = SCHEMA_FILE_PATH
+            self._schema_config = read_yaml_file(SCHEMA_FILE_PATH)
         except Exception as e:
             raise NetworkSecurityException(e, sys)
 

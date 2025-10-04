@@ -30,28 +30,38 @@ class DataIngestion:
             raise NetworkSecurityException(e,sys)
         
     def export_collection_as_dataframe(self):
-        """
-
-        read data from mongodb
-
-        """
+       
         try:
-            database_name=self.data_ingestion_config.database_name
-            collection_name=self.data_ingestion_config.collection_name
+            database_name = self.data_ingestion_config.database_name
+            collection_name = self.data_ingestion_config.collection_name
+
             self.mongo_client = pymongo.MongoClient(MONGO_DB_URL, tlsCAFile=certifi.where())
-            collection=self.mongo_client[database_name][collection_name]
-            
-            df=pd.DataFrame(list(collection.find()))
-            if "_id" in df.columns.to_list():
-                df=df.drop(columns=["_id"],axis=1)
+            collection = self.mongo_client[database_name][collection_name]
 
-            df.replace({"na": np.nan},inplace=True)
-            df = df.dropna(axis=1, how="all")
+            # Read all documents, drop _id at the query level
+            cursor = collection.find({}, {"_id": 0})
+            df = pd.DataFrame(list(cursor))
 
-            return df 
+            # Hard checks to avoid empty splits
+            if df.empty:
+                raise ValueError(f"No documents found in '{database_name}.{collection_name}'")
+
+            # Standardize and clean
+            df.replace({"na": np.nan, "NA": np.nan, "": np.nan}, inplace=True)
+
+            # Drop columns that are entirely NaN (but only if it doesn't nuke everything)
+            all_nan_cols = df.columns[df.isna().all()]
+            if len(all_nan_cols) > 0 and len(all_nan_cols) < len(df.columns):
+                df = df.drop(columns=list(all_nan_cols), axis=1)
+
+            if df.shape[1] == 0:
+                raise ValueError("All columns are NaN after cleaning. Check source data/schema.")
+
+            return df
 
         except Exception as e:
-            raise NetworkSecurityException(e,sys)
+            raise NetworkSecurityException(e, sys)
+
     def export_data_feature_store(self,dataframe:pd.DataFrame):
         try:
             feature_store_file_path=self.data_ingestion_config.feature_store_file_path
@@ -79,24 +89,30 @@ class DataIngestion:
         except Exception as e:
             raise NetworkSecurityException(e,sys)
  
-    def split_data_as_train_test(self,dataframe:pd.DataFrame):
+    def split_data_as_train_test(self, dataframe: pd.DataFrame):
         try:
-            train_set,test_set=train_test_split(dataframe,test_size=self.data_ingestion_config.train_test_split_ratio)
+            n = len(dataframe)
+            if n < 2:
+                raise ValueError(f"Not enough samples to split. Found n={n}. Load more data.")
+
+            test_ratio = self.data_ingestion_config.train_test_split_ratio
+            if not (0.0 < test_ratio < 1.0):
+                raise ValueError(f"Invalid test_size: {test_ratio}")
+
+            train_set, test_set = train_test_split(
+                dataframe, test_size=test_ratio, random_state=42, shuffle=True
+            )
             logging.info("Performed train test split on the dataframe")
+            logging.info("Exited the split_data_as_train_test method of Data Ingestion class")
 
-            logging.info("Exited the split_data_as_train_test method of Data Ingestion class" )
-
-            dir_path=os.path.dirname(self.data_ingestion_config.training_file_path)
-
-            os.makedirs(dir_path,exist_ok=True)
+            dir_path = os.path.dirname(self.data_ingestion_config.training_file_path)
+            os.makedirs(dir_path, exist_ok=True)
 
             logging.info(f"Exporting training dataset to file path : {self.data_ingestion_config.training_file_path}")
-
-            train_set.to_csv(self.data_ingestion_config.training_file_path,index=False,header=True)
-            
-            test_set.to_csv(self.data_ingestion_config.testing_file_path,index=False,header=True)
+            train_set.to_csv(self.data_ingestion_config.training_file_path, index=False, header=True)
 
             logging.info(f"Exporting testing dataset to file path : {self.data_ingestion_config.testing_file_path}")
-        
+            test_set.to_csv(self.data_ingestion_config.testing_file_path, index=False, header=True)
+
         except Exception as e:
-            raise NetworkSecurityException(e,sys)
+            raise NetworkSecurityException(e, sys)

@@ -1,9 +1,0 @@
-python-dotenv
-pandas
-numpy
-pymongo>=4.15
-dnspython>=2.4
-certifi
-scikit-learn
-dill
-PyYAML
