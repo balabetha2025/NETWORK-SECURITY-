@@ -1,4 +1,4 @@
-#!/Users/sairathan/Desktop/network_security/venv/bin/python
+#!/Users/bethabalasairathan/NETWORK-SECURITY-/venv/bin/python3.10
 
 import sys
 import json
